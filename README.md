@@ -1,5 +1,13 @@
 # bu-alert-plugin
 
+Plugin documentation: https://developer.bu.edu/webteam/developer/libraryframework/wordpress/plugins/bu-alert/
+
+BU Alert general documentation: https://developer.bu.edu/webteam/applications/bu-alert/
+
+BU Alert emergency documentation: https://developer.bu.edu/webteam/applications/bu-alert/emergency/
+
+BU Alert launch procedures: https://developer.bu.edu/webteam/applications/bu-alert/launch-procedures/
+
 This plugin was originally hosted in Subversion. Multiple attempts were made to convert the SVN repo to a Git repo but no were successful. This repo starts off with an initial commit replicates the trunk of the bu-alert plugin in SVN. Trunk is identical to the latest SVN release/tag:
 
 http://bifrost.bu.edu/svn/repos/wordpress/plugins/bu-alert/tags/2.3.2
