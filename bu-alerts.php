@@ -16,7 +16,7 @@ class BU_AlertsPlugin
 {
 
 	/* URL to global BU Alerts CSS file */
-	const CSS_URL = 				'%s://%s/alert/css/alert.css';
+	const CSS_URL = 				'https://%s/alert/css/alert.css';
 
 	/* Site option name used to store alerts for a site */
 	const SITE_OPT =                'bu-active-alert';
@@ -153,8 +153,7 @@ class BU_AlertsPlugin
 	 */
 	public static function bufferClosed($buffer)
 	{
-		$port = array_key_exists('SERVER_PORT', $_SERVER) ? $_SERVER['SERVER_PORT'] : '';
-		$proto = ($port && $port != 80) ? 'https' : 'http';
+
 		$host = 'www.bu.edu';
 		if (defined('BU_ENVIRONMENT_TYPE') && BU_ENVIRONMENT_TYPE == 'devl')
 		{
@@ -164,7 +163,7 @@ class BU_AlertsPlugin
 		// Inject emergency alert and output.
 		$buffer = preg_replace('/(<body[^>]*>)/i', '\1' . self::$alert_msg, $buffer);
 		$buffer = preg_replace('/<\/head>/i',
-			sprintf('<link rel="stylesheet" type="text/css" media="screen" href="%s" />%s</head>', sprintf(self::CSS_URL, $proto, $host), "\n"),
+			sprintf('<link rel="stylesheet" type="text/css" media="screen" href="%s" />%s</head>', sprintf(self::CSS_URL, $host), "\n"),
 			$buffer
 		);
 
