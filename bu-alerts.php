@@ -21,9 +21,6 @@ class BU_AlertsPlugin
 	/* Site option name used to store alerts for a site */
 	const SITE_OPT =                'bu-active-alert';
 
-	/* Holds a BU_AlertFile */
-	static $alert_file;
-
 	/* Holds the alert text if there is any, otherwise null */
 	static $alert_msg;
 
