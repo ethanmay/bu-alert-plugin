@@ -16,14 +16,11 @@ class BU_AlertsPlugin
 {
 
 	/* URL to global BU Alerts CSS file */
-	const CSS_URL = 				'https://%s/alert/css/alert.css';
+	const CSS_URL = 'https://%s/alert/css/alert.css';
 
-	/* Site option name used to store alerts for a site */
+	/* Site option names used to store alerts/announcements for a site */
 	const SITE_OPT_ALERT =                      'bu-active-alert';
 	const SITE_OPT_IMPORTANT_ANNOUNCEMENT =     'bu-active-announcement';
-
-	/* Holds a BU_AlertFile */
-	static $alert_file;
 
 	/* Holds the alert text if there is any, otherwise null */
 	static $alert_msg;
