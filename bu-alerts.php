@@ -19,7 +19,8 @@ class BU_AlertsPlugin
 	const CSS_URL = 				'https://%s/alert/css/alert.css';
 
 	/* Site option name used to store alerts for a site */
-	const SITE_OPT =                'bu-active-alert';
+	const SITE_OPT_ALERT =                      'bu-active-alert';
+	const SITE_OPT_IMPORTANT_ANNOUNCEMENT =     'bu-active-announcement';
 
 	/* Holds a BU_AlertFile */
 	static $alert_file;
@@ -40,9 +41,13 @@ class BU_AlertsPlugin
 
 		// Initialize state.
 		self::$buffering_started = false;
-		if ($active = self::getActiveAlert())
+		if ($active = self::getActiveAlert(self::SITE_OPT_ALERT))
 		{
 			self::$alert_msg = sprintf('<div id="bu-alert-wrapper">%s</div>', $active['msg']);
+		}
+		if ($announcement = self::getActiveAlert(self::SITE_OPT_IMPORTANT_ANNOUNCEMENT))
+		{
+			self::$alert_msg .= sprintf('<div id="bu-alert-wrapper">%s</div>', $announcement['msg']);
 		}
 
 		if (self::$alert_msg)
@@ -51,13 +56,52 @@ class BU_AlertsPlugin
 		}
 	}
 
-	protected static function getActiveAlert()
+	protected static function getActiveAlert($alert_type)
 	{
-		return get_site_option(self::SITE_OPT);
+		return get_site_option($alert_type);
 	}
 
-    public static function startAlert($alert_message, $campus)
-    {
+	/**
+	 * Returns the key of the site option to use for storing the alert
+	 *
+	 * @param string $type              The type of alert we are acting on,
+	 *                                  e.g. emergency or announcement
+	 * @param mixed  $fallback_to_alert Use string literal "fallback_to_alert" to
+	 *                                  use self::SITE_OPT_ALERT when $type is unknown
+	 * @return string The name of the site option to store the alert in
+	 */
+	public static function getSiteOptionByType($type, $fallback_to_alert=false)
+	{
+		$site_option = self::SITE_OPT_ALERT;
+
+		switch ($type)
+		{
+			case "emergency":
+				$site_option = self::SITE_OPT_ALERT;
+				break;
+			case "announcement":
+				$site_option = self::SITE_OPT_IMPORTANT_ANNOUNCEMENT;
+				break;
+			default:
+				if ($fallback_to_alert === 'fallback_to_alert')
+				{
+					$site_option = self::SITE_OPT_ALERT;
+				}
+				else
+				{
+					$site_option = self::SITE_OPT_IMPORTANT_ANNOUNCEMENT;
+				}
+				error_log("BU Alert unknown type, " . $site_option . " type assumed");
+				break;
+		}
+
+		return $site_option;
+	}
+
+	public static function startAlert($alert_message, $campus, $type = 'emergency')
+	{
+		$site_option = self::getSiteOptionByType($type, 'fallback_to_alert');
+
 		$site_ids = bu_alert_get_campus_site_ids($campus);
 		$alert = array(
 			'msg' => $alert_message,
@@ -67,36 +111,38 @@ class BU_AlertsPlugin
 		foreach ($site_ids as $site_id)
 		{
 			switch_to_network($site_id);
-			update_site_option(self::SITE_OPT, $alert);
+			update_site_option($site_option, $alert);
 			restore_current_network();
 		}
 
-		try
-		{
-			global $bu_alert_campus_map;
-			foreach ($bu_alert_campus_map[$campus] as $host)
+			try
 			{
-				$alert_file = new BU_AlertFile($host);
-				$alert_file->startAlert($alert_message);
+				global $bu_alert_campus_map;
+				foreach ($bu_alert_campus_map[$campus] as $host)
+				{
+					$alert_file = new BU_AlertFile($host, $type);
+					$alert_file->startAlert($alert_message);
+				}
 			}
-		}
-		catch (Exception $e)
-		{
-			error_log('BU Alert: unable to write alert to file.');
-			return false;
-		}
+			catch (Exception $e)
+			{
+				error_log('BU Alert: unable to write alert to file.');
+				return false;
+			}
 
 		return true;
-    }
+	}
 
-    public static function stopAlert($campus)
-    {
+	public static function stopAlert($campus, $type = 'announcement')
+	{
 		$site_ids = bu_alert_get_campus_site_ids($campus);
+
+		$site_option = self::getSiteOptionByType($type);
 
 		foreach ($site_ids as $site_id)
 		{
 			switch_to_network($site_id);
-			delete_site_option(self::SITE_OPT);
+			delete_site_option($site_option);
 			/* Explicitly delete site option from cache
 			 *
 			 * There can be a race condition where wpdb->get gets called before wpdb->delete
@@ -109,28 +155,27 @@ class BU_AlertsPlugin
 			 * See slack conversation for additional background
 			 * https://buweb.slack.com/archives/webteam/p1475767822000060
 			 */
-			$key = $site_id . ':' . self::SITE_OPT;
+			$key = $site_id . ':' . $site_option;
 			wp_cache_delete($key, 'site-options');
 			restore_current_network();
 		}
 
-		try
-		{
-			global $bu_alert_campus_map;
-			foreach ($bu_alert_campus_map[$campus] as $host)
+			try
 			{
-				$alert_file = new BU_AlertFile($host);
-				$alert_file->stopAlert();
+				global $bu_alert_campus_map;
+				foreach ($bu_alert_campus_map[$campus] as $host)
+				{
+					$alert_file = new BU_AlertFile($host, $type);
+					$alert_file->stopAlert();
+				}
 			}
-		}
-		catch (Exception $e)
-		{
-			error_log('BU Alert: unable to write stop alert to file.');
-			return false;
-		}
-
+			catch (Exception $e)
+			{
+				error_log('BU Alert: unable to write stop alert to file.');
+				return false;
+			}
 		return true;
-    }
+	}
 
 	/**
 	 * Fired by the WordPress 'wp' action.  This will begin output buffering.

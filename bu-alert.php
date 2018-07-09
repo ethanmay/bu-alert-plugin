@@ -15,7 +15,9 @@ function bu_alert_start()
 		if (isset($bu_alert_campus_map[$campus]))
 		{
 			$message = stripslashes($_REQUEST['message']);
-			$result = BU_AlertsPlugin::startAlert($message, $campus);
+			$type = strtolower($_REQUEST['type']);
+
+			$result = BU_AlertsPlugin::startAlert($message, $campus, $type);
 
 			if ($result)
 			{
@@ -52,9 +54,11 @@ function bu_alert_stop()
 	if (isset($_REQUEST['campus']) && $_REQUEST['campus'])
 	{
 		$campus = strtolower($_REQUEST['campus']);
+		$type = strtolower($_REQUEST['type']);
+
 		if (isset($bu_alert_campus_map[$campus]))
 		{
-			$result = BU_AlertsPlugin::stopAlert($campus);
+			$result = BU_AlertsPlugin::stopAlert($campus, $type);
 
 			if ($result)
 			{
