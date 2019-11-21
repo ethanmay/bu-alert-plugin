@@ -45,8 +45,10 @@ function bu_alert_get_campus_site_ids($campus)
 	$site_ids = array();
 	foreach ($domains as $domain)
 	{
-		$query = sprintf('SELECT id FROM %s WHERE domain = %%s', $wpdb->site);
-		$site_id = $wpdb->get_var($wpdb->prepare($query, $domain));
+		$site_id = $wpdb->get_var(
+			$wpdb->prepare( "SELECT id FROM {$wpdb->site} WHERE domain = %s", $domain )
+		);
+
 		if ($site_id)
 		{
 			$site_ids[] = $site_id;
