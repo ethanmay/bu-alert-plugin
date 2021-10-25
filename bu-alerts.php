@@ -12,15 +12,15 @@ require_once 'alert-file.php';
 require_once 'campus-map.php';
 
 
-class BU_AlertsPlugin
-{
+class BU_AlertsPlugin {
+
 
 	/* URL to global BU Alerts CSS file */
 	const CSS_URL = 'https://%s/alert/css/alert.css';
 
 	/* Site option names used to store alerts/announcements for a site */
-	const SITE_OPT_ALERT =                      'bu-active-alert';
-	const SITE_OPT_IMPORTANT_ANNOUNCEMENT =     'bu-active-announcement';
+	const SITE_OPT_ALERT                  = 'bu-active-alert';
+	const SITE_OPT_IMPORTANT_ANNOUNCEMENT = 'bu-active-announcement';
 
 	/* Holds the alert text if there is any, otherwise null */
 	static $alert_msg;
@@ -28,34 +28,29 @@ class BU_AlertsPlugin
 	/* State stuff */
 	static $buffering_started;
 
-	public static function init()
-	{
-		global $bu_is_development_host;
+	public static function init() {
+		 global $bu_is_development_host;
 
-		if (defined('BU_SUPPRESS_ALERTS') && BU_SUPPRESS_ALERTS && isset($bu_is_development_host) && ($bu_is_development_host === true)) {
+		if ( defined( 'BU_SUPPRESS_ALERTS' ) && BU_SUPPRESS_ALERTS && isset( $bu_is_development_host ) && ( $bu_is_development_host === true ) ) {
 			return;
 		}
 
 		// Initialize state.
 		self::$buffering_started = false;
-		if ($active = self::getActiveAlert(self::SITE_OPT_ALERT))
-		{
-			self::$alert_msg = sprintf('<div id="bu-alert-wrapper">%s</div>', $active['msg']);
+		if ( $active = self::getActiveAlert( self::SITE_OPT_ALERT ) ) {
+			self::$alert_msg = sprintf( '<div id="bu-alert-wrapper">%s</div>', $active['msg'] );
 		}
-		if ($announcement = self::getActiveAlert(self::SITE_OPT_IMPORTANT_ANNOUNCEMENT))
-		{
-			self::$alert_msg .= sprintf('<div id="bu-alert-wrapper">%s</div>', $announcement['msg']);
+		if ( $announcement = self::getActiveAlert( self::SITE_OPT_IMPORTANT_ANNOUNCEMENT ) ) {
+			self::$alert_msg .= sprintf( '<div id="bu-alert-wrapper">%s</div>', $announcement['msg'] );
 		}
 
-		if (self::$alert_msg)
-		{
+		if ( self::$alert_msg ) {
 			self::openBuffer();
 		}
 	}
 
-	protected static function getActiveAlert($alert_type)
-	{
-		return get_site_option($alert_type);
+	protected static function getActiveAlert( $alert_type ) {
+		return get_site_option( $alert_type );
 	}
 
 	/**
@@ -67,80 +62,68 @@ class BU_AlertsPlugin
 	 *                                  use self::SITE_OPT_ALERT when $type is unknown
 	 * @return string The name of the site option to store the alert in
 	 */
-	public static function getSiteOptionByType($type, $fallback_to_alert=false)
-	{
+	public static function getSiteOptionByType( $type, $fallback_to_alert = false ) {
 		$site_option = self::SITE_OPT_ALERT;
 
-		switch ($type)
-		{
-			case "emergency":
+		switch ( $type ) {
+			case 'emergency':
 				$site_option = self::SITE_OPT_ALERT;
 				break;
-			case "announcement":
+			case 'announcement':
 				$site_option = self::SITE_OPT_IMPORTANT_ANNOUNCEMENT;
 				break;
 			default:
-				if ($fallback_to_alert === 'fallback_to_alert')
-				{
+				if ( $fallback_to_alert === 'fallback_to_alert' ) {
 					$site_option = self::SITE_OPT_ALERT;
-				}
-				else
-				{
+				} else {
 					$site_option = self::SITE_OPT_IMPORTANT_ANNOUNCEMENT;
 				}
-				error_log("BU Alert unknown type, " . $site_option . " type assumed");
+				error_log( 'BU Alert unknown type, ' . $site_option . ' type assumed' );
 				break;
 		}
 
 		return $site_option;
 	}
 
-	public static function startAlert($alert_message, $campus, $type = 'emergency')
-	{
-		$site_option = self::getSiteOptionByType($type, 'fallback_to_alert');
+	public static function startAlert( $alert_message, $campus, $type = 'emergency' ) {
+		$site_option = self::getSiteOptionByType( $type, 'fallback_to_alert' );
 
-		$site_ids = bu_alert_get_campus_site_ids($campus);
-		$alert = array(
-			'msg' => $alert_message,
-			'started_on' => time()
+		$site_ids = bu_alert_get_campus_site_ids( $campus );
+		$alert    = array(
+			'msg'        => $alert_message,
+			'started_on' => time(),
 		);
 
-		foreach ($site_ids as $site_id)
-		{
-			switch_to_network($site_id);
-			update_site_option($site_option, $alert);
+		foreach ( $site_ids as $site_id ) {
+			switch_to_network( $site_id );
+			update_site_option( $site_option, $alert );
 			restore_current_network();
 		}
 
-			try
-			{
-				global $bu_alert_campus_map;
-				foreach ($bu_alert_campus_map[$campus] as $host)
-				{
-					$alert_file = new BU_AlertFile($host, $type);
-					$alert_file->startAlert($alert_message);
-				}
+		try {
+			global $bu_alert_campus_map;
+			foreach ( $bu_alert_campus_map[ $campus ] as $host ) {
+				$alert_file = new BU_AlertFile( $host, $type );
+				$alert_file->startAlert( $alert_message );
 			}
-			catch (Exception $e)
-			{
-				error_log('BU Alert: unable to write alert to file.');
-				return false;
-			}
+		} catch ( Exception $e ) {
+			error_log( 'BU Alert: unable to write alert to file.' );
+			return false;
+		}
 
 		return true;
 	}
 
-	public static function stopAlert($campus, $type = 'announcement')
-	{
-		$site_ids = bu_alert_get_campus_site_ids($campus);
+	public static function stopAlert( $campus, $type = 'announcement' ) {
+		$site_ids = bu_alert_get_campus_site_ids( $campus );
 
-		$site_option = self::getSiteOptionByType($type);
+		$site_option = self::getSiteOptionByType( $type );
 
-		foreach ($site_ids as $site_id)
-		{
-			switch_to_network($site_id);
-			delete_site_option($site_option);
-			/* Explicitly delete site option from cache
+		foreach ( $site_ids as $site_id ) {
+			switch_to_network( $site_id );
+			delete_site_option( $site_option );
+			/*
+			 Explicitly delete site option from cache
 			 *
 			 * There can be a race condition where wpdb->get gets called before wpdb->delete
 			 * finishes resulting in the alert getting resaved back into memcached.
@@ -153,34 +136,29 @@ class BU_AlertsPlugin
 			 * https://buweb.slack.com/archives/webteam/p1475767822000060
 			 */
 			$key = $site_id . ':' . $site_option;
-			wp_cache_delete($key, 'site-options');
+			wp_cache_delete( $key, 'site-options' );
 			restore_current_network();
 		}
 
-			try
-			{
-				global $bu_alert_campus_map;
-				foreach ($bu_alert_campus_map[$campus] as $host)
-				{
-					$alert_file = new BU_AlertFile($host, $type);
-					$alert_file->stopAlert();
-				}
+		try {
+			global $bu_alert_campus_map;
+			foreach ( $bu_alert_campus_map[ $campus ] as $host ) {
+				$alert_file = new BU_AlertFile( $host, $type );
+				$alert_file->stopAlert();
 			}
-			catch (Exception $e)
-			{
-				error_log('BU Alert: unable to write stop alert to file.');
-				return false;
-			}
+		} catch ( Exception $e ) {
+			error_log( 'BU Alert: unable to write stop alert to file.' );
+			return false;
+		}
 		return true;
 	}
 
 	/**
 	 * Fired by the WordPress 'wp' action.  This will begin output buffering.
 	 */
-	public static function openBuffer()
-	{
-		if (self::$buffering_started !== true) {
-			ob_start(array(__CLASS__, 'bufferClosed'));
+	public static function openBuffer() {
+		if ( self::$buffering_started !== true ) {
+			ob_start( array( __CLASS__, 'bufferClosed' ) );
 			self::$buffering_started = true;
 		}
 	}
@@ -190,22 +168,21 @@ class BU_AlertsPlugin
 	 * to maintain the integrity of this plugin even when the theme does not appropriately
 	 * fire the wp_footer action.
 	 *
-	 *	@param	string $buffer		The buffer, as provided by PHP.
-	 *	@return	string				The buffer with the alert message injected.
+	 *  @param  string $buffer      The buffer, as provided by PHP.
+	 *  @return string              The buffer with the alert message injected.
 	 */
-	public static function bufferClosed($buffer)
-	{
+	public static function bufferClosed( $buffer ) {
 
 		$host = 'www.bu.edu';
-		if (defined('BU_ENVIRONMENT_TYPE') && BU_ENVIRONMENT_TYPE == 'devl')
-		{
+		if ( defined( 'BU_ENVIRONMENT_TYPE' ) && BU_ENVIRONMENT_TYPE == 'devl' ) {
 			$host = 'www-devl.bu.edu';
 		}
 
 		// Inject emergency alert and output.
-		$buffer = preg_replace('/(<body[^>]*>)/i', '\1' . self::$alert_msg, $buffer);
-		$buffer = preg_replace('/<\/head>/i',
-			sprintf('<link rel="stylesheet" type="text/css" media="screen" href="%s" />%s</head>', sprintf(self::CSS_URL, $host), "\n"),
+		$buffer = preg_replace( '/(<body[^>]*>)/i', '\1' . self::$alert_msg, $buffer );
+		$buffer = preg_replace(
+			'/<\/head>/i',
+			sprintf( '<link rel="stylesheet" type="text/css" media="screen" href="%s" />%s</head>', sprintf( self::CSS_URL, $host ), "\n" ),
 			$buffer
 		);
 
@@ -213,4 +190,4 @@ class BU_AlertsPlugin
 	}
 }
 
-add_action('init', array('BU_AlertsPlugin', 'init'));
+add_action( 'init', array( 'BU_AlertsPlugin', 'init' ) );
