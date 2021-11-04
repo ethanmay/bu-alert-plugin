@@ -29,11 +29,6 @@ class BU_AlertsPlugin {
 	static $buffering_started;
 
 	public static function init() {
-		 global $bu_is_development_host;
-
-		if ( defined( 'BU_SUPPRESS_ALERTS' ) && BU_SUPPRESS_ALERTS && isset( $bu_is_development_host ) && ( $bu_is_development_host === true ) ) {
-			return;
-		}
 
 		// Initialize state.
 		self::$buffering_started = false;
