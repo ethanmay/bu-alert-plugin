@@ -14,10 +14,6 @@ require_once 'campus-map.php';
 
 class BU_AlertsPlugin {
 
-
-	/* URL to global BU Alerts CSS file */
-	const CSS_URL = 'https://%s/alert/css/alert.css';
-
 	/* Site option names used to store alerts/announcements for a site */
 	const SITE_OPT_ALERT                  = 'bu-active-alert';
 	const SITE_OPT_IMPORTANT_ANNOUNCEMENT = 'bu-active-announcement';
@@ -29,6 +25,14 @@ class BU_AlertsPlugin {
 	static $buffering_started;
 
 	public static function init() {
+
+		// Always enqueue alert css.
+		wp_enqueue_style(
+			'bu-alert-css',
+			plugin_dir_url( __FILE__ ) . 'alert.css',
+			array(),
+			'3.0'
+		);
 
 		// Initialize state.
 		self::$buffering_started = false;
@@ -152,18 +156,8 @@ class BU_AlertsPlugin {
 	 */
 	public static function bufferClosed( $buffer ) {
 
-		$host = 'www.bu.edu';
-		if ( defined( 'BU_ENVIRONMENT_TYPE' ) && BU_ENVIRONMENT_TYPE == 'devl' ) {
-			$host = 'www-devl.bu.edu';
-		}
-
 		// Inject emergency alert and output.
 		$buffer = preg_replace( '/(<body[^>]*>)/i', '\1' . self::$alert_msg, $buffer );
-		$buffer = preg_replace(
-			'/<\/head>/i',
-			sprintf( '<link rel="stylesheet" type="text/css" media="screen" href="%s" />%s</head>', sprintf( self::CSS_URL, $host ), "\n" ),
-			$buffer
-		);
 
 		return $buffer;
 	}
