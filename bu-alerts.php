@@ -7,7 +7,7 @@ Version: 2.4.1
 Author URI: http://www.bu.edu/
 */
 
-require_once 'bu-alert.php';
+require_once 'bu-alert-endpoint.php';
 require_once 'alert-file.php';
 require_once 'campus-map.php';
 
@@ -80,71 +80,55 @@ class BU_AlertsPlugin {
 		return $site_option;
 	}
 
-	public static function startAlert( $alert_message, $campus, $type = 'emergency' ) {
+	/**
+	 * Starts an alert by setting the alert site option and creating alert files
+	 *
+	 * @param string $alert_message The text message received from the external API.
+	 * @param array  $site_ids An array of ids for sites that will display the alert.
+	 * @param string $type Optional alert type, either 'emergency' or 'announcement'.
+	 * @return bool Returns true on success or false on failure
+	 */
+	public static function startAlert( $alert_message, $site_ids, $type = 'emergency' ) {
+		global $wp_object_cache;
+
 		$site_option = self::getSiteOptionByType( $type, 'fallback_to_alert' );
 
-		$site_ids = bu_alert_get_campus_site_ids( $campus );
 		$alert    = array(
 			'msg'        => $alert_message,
 			'started_on' => time(),
 		);
 
+		// Set network level site option for an alert, given the type and message.
 		foreach ( $site_ids as $site_id ) {
 			switch_to_network( $site_id );
 			update_site_option( $site_option, $alert );
+
+			// Try flushing cache here.
+			$flush_result = $wp_object_cache->flush( 0 );
+
 			restore_current_network();
 		}
 
-		try {
-			global $bu_alert_campus_map;
-			foreach ( $bu_alert_campus_map[ $campus ] as $host ) {
-				$alert_file = new BU_AlertFile( $host, $type );
-				$alert_file->startAlert( $alert_message );
-			}
-		} catch ( Exception $e ) {
-			error_log( 'BU Alert: unable to write alert to file.' );
-			return false;
-		}
-
-		return true;
+		return array(
+			'site_option'   => $site_option,
+			'site_ids'      => $site_ids,
+			'alert_message' => $alert_message,
+			'flush_result'  => $flush_result,
+		);
 	}
 
-	public static function stopAlert( $campus, $type = 'announcement' ) {
-		$site_ids = bu_alert_get_campus_site_ids( $campus );
+	public static function stopAlert( $site_ids, $type = 'emergency' ) {
+		global $wp_object_cache;
 
 		$site_option = self::getSiteOptionByType( $type );
 
 		foreach ( $site_ids as $site_id ) {
 			switch_to_network( $site_id );
 			delete_site_option( $site_option );
-			/*
-			 Explicitly delete site option from cache
-			 *
-			 * There can be a race condition where wpdb->get gets called before wpdb->delete
-			 * finishes resulting in the alert getting resaved back into memcached.
-			 *
-			 * Below we explicitly delete the cache for each network id
-			 * This race condition is most likely on www.bu.edu due to is high-usage
-			 * but let's be safe and explcilty clear the cache for all IDs
-			 *
-			 * See slack conversation for additional background
-			 * https://buweb.slack.com/archives/webteam/p1475767822000060
-			 */
-			$key = $site_id . ':' . $site_option;
-			wp_cache_delete( $key, 'site-options' );
+			$flush_result = $wp_object_cache->flush( 0 );
 			restore_current_network();
 		}
 
-		try {
-			global $bu_alert_campus_map;
-			foreach ( $bu_alert_campus_map[ $campus ] as $host ) {
-				$alert_file = new BU_AlertFile( $host, $type );
-				$alert_file->stopAlert();
-			}
-		} catch ( Exception $e ) {
-			error_log( 'BU Alert: unable to write stop alert to file.' );
-			return false;
-		}
 		return true;
 	}
 
