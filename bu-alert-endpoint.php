@@ -18,7 +18,23 @@ namespace BU\Plugins\Alert;
 function start_alert( $request ) {
 	global $current_site;
 
-	$site_ids = array( get_id_for_domain( $current_site->domain ) );
+	// Get the site id for the current site.
+	$site_ids[] = get_id_for_domain( $current_site->domain );
+
+	// Get site ids for an additional sites from the request parameters.
+	$additional_domains  = explode( ',', $request->get_param( 'additionalDomains' ) );
+	$additional_site_ids = array_map(
+		function( $domain ) {
+			return get_id_for_domain( $domain );
+		},
+		$additional_domains
+	);
+
+	// Add the additional site ids, if any.
+	$site_ids = array_merge( $site_ids, $additional_site_ids );
+
+	// Filter out any null values.
+	$site_ids = array_filter( $site_ids );
 
 	$result = \BU_AlertsPlugin::startAlert(
 		format_alert( $request->get_param( 'body' ) ),
