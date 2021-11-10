@@ -97,7 +97,7 @@ class BU_AlertsPlugin {
 
 		$site_option = self::getSiteOptionByType( $type, 'fallback_to_alert' );
 
-		$alert    = array(
+		$alert = array(
 			'msg'        => $alert_message,
 			'started_on' => time(),
 		);
@@ -106,12 +106,11 @@ class BU_AlertsPlugin {
 		foreach ( $site_ids as $site_id ) {
 			switch_to_network( $site_id );
 			update_site_option( $site_option, $alert );
-
-			// Try flushing cache here.
-			$flush_result = $wp_object_cache->flush( 0 );
-
 			restore_current_network();
 		}
+
+		// Flushing the cache should affect every site in every network?
+		$flush_result = $wp_object_cache->flush( 0 );
 
 		return array(
 			'site_option'   => $site_option,
@@ -129,11 +128,13 @@ class BU_AlertsPlugin {
 		foreach ( $site_ids as $site_id ) {
 			switch_to_network( $site_id );
 			delete_site_option( $site_option );
-			$flush_result = $wp_object_cache->flush( 0 );
 			restore_current_network();
 		}
 
-		return true;
+		// Flushing the cache should affect every site in every network?
+		$flush_result = $wp_object_cache->flush( 0 );
+
+		return array( 'flush_result' => $flush_result );
 	}
 
 	/**
