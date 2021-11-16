@@ -36,11 +36,15 @@ class BU_AlertsPlugin {
 
 		// Initialize state.
 		self::$buffering_started = false;
-		if ( $active = self::getActiveAlert( self::SITE_OPT_ALERT ) ) {
-			self::$alert_msg = sprintf( '<div id="bu-alert-wrapper">%s</div>', $active['msg'] );
+
+		$active_alert = get_site_option( self::SITE_OPT_ALERT );
+		if ( $active_alert ) {
+			self::$alert_msg = sprintf( '<div id="bu-alert-wrapper">%s</div>', $active_alert['msg'] );
 		}
-		if ( $announcement = self::getActiveAlert( self::SITE_OPT_ANNOUNCEMENT ) ) {
-			self::$alert_msg .= sprintf( '<div id="bu-alert-wrapper">%s</div>', $announcement['msg'] );
+
+		$active_announcement = get_site_option( self::SITE_OPT_ANNOUNCEMENT );
+		if ( $active_announcement ) {
+			self::$alert_msg .= sprintf( '<div id="bu-alert-wrapper">%s</div>', $active_announcement['msg'] );
 		}
 
 		if ( self::$alert_msg ) {
