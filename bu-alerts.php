@@ -57,31 +57,10 @@ class BU_AlertsPlugin {
 	 *
 	 * @param string $type              The type of alert we are acting on,
 	 *                                  e.g. emergency or announcement
-	 * @param mixed  $fallback_to_alert Use string literal "fallback_to_alert" to
-	 *                                  use self::SITE_OPT_ALERT when $type is unknown
 	 * @return string The name of the site option to store the alert in
 	 */
-	public static function getSiteOptionByType( $type, $fallback_to_alert = false ) {
-		$site_option = self::SITE_OPT_ALERT;
-
-		switch ( $type ) {
-			case 'emergency':
-				$site_option = self::SITE_OPT_ALERT;
-				break;
-			case 'announcement':
-				$site_option = self::SITE_OPT_IMPORTANT_ANNOUNCEMENT;
-				break;
-			default:
-				if ( $fallback_to_alert === 'fallback_to_alert' ) {
-					$site_option = self::SITE_OPT_ALERT;
-				} else {
-					$site_option = self::SITE_OPT_IMPORTANT_ANNOUNCEMENT;
-				}
-				error_log( 'BU Alert unknown type, ' . $site_option . ' type assumed' );
-				break;
-		}
-
-		return $site_option;
+	public static function getSiteOptionByType( $type ) {
+		return ( 'announcement' === $type ) ? self::SITE_OPT_IMPORTANT_ANNOUNCEMENT : self::SITE_OPT_ALERT;
 	}
 
 	/**
@@ -95,7 +74,7 @@ class BU_AlertsPlugin {
 	public static function startAlert( $alert_message, $site_ids, $type = 'emergency' ) {
 		global $wp_object_cache;
 
-		$site_option = self::getSiteOptionByType( $type, 'fallback_to_alert' );
+		$site_option = self::getSiteOptionByType( $type );
 
 		$alert = array(
 			'msg'        => $alert_message,
