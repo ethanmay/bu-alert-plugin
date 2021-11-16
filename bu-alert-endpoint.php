@@ -36,9 +36,15 @@ function start_alert( $request ) {
 	// Filter out any null values.
 	$site_ids = array_filter( $site_ids );
 
+	// Type can be set to 'announcement', but default to 'emergency'.
+	$type = ( 'announcement' === $request->get_param( 'type' ) ) ? 'announcement' : 'emergency';
+
+	$alert_message = ( 'announcement' === $type ) ? format_announcement( $request->get_param( 'body' ) ) : format_alert( $request->get_param( 'body' ) );
+
 	$result = \BU_AlertsPlugin::startAlert(
-		format_alert( $request->get_param( 'body' ) ),
-		$site_ids
+		$alert_message,
+		$site_ids,
+		$type
 	);
 
 	return $result;
@@ -53,6 +59,13 @@ function start_alert( $request ) {
 function format_alert( $body ) {
 	return sprintf(
 		'<div id="bu-alert-emergency" class="nocontent"><div id="bu-alert-emergency-inner"><p><span id="bu-alert-emergency-header">Emergency BU Alert</span> <span id="bu-alert-emergency-message">%s</span></p></div></div>',
+		$body
+	);
+}
+
+function format_announcement( $body ) {
+	return sprintf(
+		'<div id="bu-alert-non-emergency" class="nocontent">%s</div>',
 		$body
 	);
 }
