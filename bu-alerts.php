@@ -15,8 +15,8 @@ require_once 'campus-map.php';
 class BU_AlertsPlugin {
 
 	/* Site option names used to store alerts/announcements for a site */
-	const SITE_OPT_ALERT                  = 'bu-active-alert';
-	const SITE_OPT_IMPORTANT_ANNOUNCEMENT = 'bu-active-announcement';
+	const SITE_OPT_ALERT        = 'bu-active-alert';
+	const SITE_OPT_ANNOUNCEMENT = 'bu-active-announcement';
 
 	/* Holds the alert text if there is any, otherwise null */
 	static $alert_msg;
@@ -39,7 +39,7 @@ class BU_AlertsPlugin {
 		if ( $active = self::getActiveAlert( self::SITE_OPT_ALERT ) ) {
 			self::$alert_msg = sprintf( '<div id="bu-alert-wrapper">%s</div>', $active['msg'] );
 		}
-		if ( $announcement = self::getActiveAlert( self::SITE_OPT_IMPORTANT_ANNOUNCEMENT ) ) {
+		if ( $announcement = self::getActiveAlert( self::SITE_OPT_ANNOUNCEMENT ) ) {
 			self::$alert_msg .= sprintf( '<div id="bu-alert-wrapper">%s</div>', $announcement['msg'] );
 		}
 
@@ -60,7 +60,7 @@ class BU_AlertsPlugin {
 	 * @return string The name of the site option to store the alert in
 	 */
 	public static function getSiteOptionByType( $type ) {
-		return ( 'announcement' === $type ) ? self::SITE_OPT_IMPORTANT_ANNOUNCEMENT : self::SITE_OPT_ALERT;
+		return ( 'announcement' === $type ) ? self::SITE_OPT_ANNOUNCEMENT : self::SITE_OPT_ALERT;
 	}
 
 	/**
