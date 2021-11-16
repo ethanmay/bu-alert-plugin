@@ -39,35 +39,13 @@ function start_alert( $request ) {
 	// Type can be set to 'announcement', but default to 'emergency'.
 	$type = ( 'announcement' === $request->get_param( 'type' ) ) ? 'announcement' : 'emergency';
 
-	$alert_message = ( 'announcement' === $type ) ? format_announcement( $request->get_param( 'body' ) ) : format_alert( $request->get_param( 'body' ) );
-
 	$result = \BU_AlertsPlugin::startAlert(
-		$alert_message,
+		$request->get_param( 'body' ),
 		$site_ids,
 		$type
 	);
 
 	return $result;
-}
-
-/**
- * Format an alert message with markup
- *
- * @param string $body The body of the message to be wrapped in markup.
- * @return string The formatted alert markup
- */
-function format_alert( $body ) {
-	return sprintf(
-		'<div id="bu-alert-emergency" class="nocontent"><div id="bu-alert-emergency-inner"><p><span id="bu-alert-emergency-header">Emergency BU Alert</span> <span id="bu-alert-emergency-message">%s</span></p></div></div>',
-		$body
-	);
-}
-
-function format_announcement( $body ) {
-	return sprintf(
-		'<div id="bu-alert-non-emergency" class="nocontent">%s</div>',
-		$body
-	);
 }
 
 /**

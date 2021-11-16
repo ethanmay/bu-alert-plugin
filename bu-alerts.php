@@ -39,12 +39,18 @@ class BU_AlertsPlugin {
 
 		$active_alert = get_site_option( self::SITE_OPT_ALERT );
 		if ( $active_alert ) {
-			self::$alert_msg = sprintf( '<div id="bu-alert-wrapper">%s</div>', $active_alert['msg'] );
+			self::$alert_msg = sprintf(
+				'<div id="bu-alert-wrapper"><div id="bu-alert-emergency" class="nocontent"><div id="bu-alert-emergency-inner"><p><span id="bu-alert-emergency-header">Emergency BU Alert</span> <span id="bu-alert-emergency-message">%s</span></p></div></div></div>',
+				$active_alert['msg']
+			);
 		}
 
 		$active_announcement = get_site_option( self::SITE_OPT_ANNOUNCEMENT );
 		if ( $active_announcement ) {
-			self::$alert_msg .= sprintf( '<div id="bu-alert-wrapper">%s</div>', $active_announcement['msg'] );
+			self::$alert_msg .= sprintf(
+				'<div id="bu-alert-wrapper"><div id="bu-alert-non-emergency" class="nocontent">%s</div></div>',
+				$active_announcement['msg']
+			);
 		}
 
 		if ( self::$alert_msg ) {
