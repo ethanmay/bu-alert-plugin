@@ -36,7 +36,7 @@ function get_eb_auth_headers( $url_path ) {
 /**
  * Get Open incidents in Everbridge from the API
  *
- * @return array Array of open incident ids, or false if there are no open incidents.
+ * @return array Array of open incident ids, or an empty array if there are no open incidents.
  */
 function get_eb_open_incidents() {
 	$url_path = '/rest/incidents/' . \EB_BU_ORG_ID;
@@ -52,7 +52,7 @@ function get_eb_open_incidents() {
 	$response = json_decode( $body );
 
 	if ( 0 === $response->page->totalCount ) {
-		return false;
+		return array();
 	}
 
 	$incidents = array_map(
