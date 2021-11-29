@@ -84,7 +84,8 @@ function get_eb_incident_details( $incident_id ) {
 	$incident = $response->page->data[0];
 
 	return array(
-		'title' => $incident->message->title,
-		'body'  => $incident->message->textMessage,
+		'id'           => $incident_id,
+		'title'        => $incident->message->title,
+		'body'         => $incident->message->textMessage,
 	);
 }

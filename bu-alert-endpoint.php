@@ -39,10 +39,24 @@ function start_alert( $request ) {
 	// Type can be set to 'announcement', but default to 'emergency'.
 	$type = ( 'announcement' === $request->get_param( 'type' ) ) ? 'announcement' : 'emergency';
 
+	// Look up the alert in the Everbridge API to try to match it to an incident ID.
+	$open_incidents = get_eb_open_incidents();
+
+	$matching_incidents = array_filter(
+		$open_incidents,
+		function( $incident ) use ( $request ) {
+			// Check for matching title and body of the open incident.
+			return $incident['title'] === $request->get_param( 'title' ) && $incident['body'] === $request->get_param( 'body' );
+		}
+	);
+
+	$incident_id = ( $matching_incidents ) ? $matching_incidents[0]['id'] : 0;
+
 	$result = \BU_AlertsPlugin::startAlert(
 		$request->get_param( 'body' ),
 		$site_ids,
-		$type
+		$type,
+		$incident_id
 	);
 
 	return $result;
