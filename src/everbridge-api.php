@@ -83,9 +83,21 @@ function get_eb_incident_details( $incident_id ) {
 	$response = json_decode( $body );
 	$incident = $response->page->data[0];
 
+	// Get the url that Everbridge used for the Web Posting, it is buried in the template information.
+	$received_url = $incident
+		->incidentPhase
+		->phaseTemplate
+		->broadcastTemplate
+		->publicMessages
+		->genericOneyWayMessage
+		->genericOneWaySetting
+		->receiveEndPoints[0]
+		->receiveUrl;
+
 	return array(
 		'id'           => $incident_id,
 		'title'        => $incident->message->title,
 		'body'         => $incident->message->textMessage,
+		'received_url' => $received_url,
 	);
 }
