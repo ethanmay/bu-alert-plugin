@@ -7,7 +7,7 @@ Version: 2.4.1
 Author URI: http://www.bu.edu/
 */
 
-require_once 'bu-alert-endpoint.php';
+require_once 'src/bu-alert-endpoint.php';
 
 require_once 'src/everbridge-api.php';
 
