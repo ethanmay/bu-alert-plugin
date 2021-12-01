@@ -80,14 +80,15 @@ class BU_AlertsPlugin {
 	 * @param string $type Optional alert type, either 'emergency' or 'announcement'.
 	 * @return bool Returns true on success or false on failure
 	 */
-	public static function startAlert( $alert_message, $site_ids, $type = 'emergency' ) {
+	public static function startAlert( $alert_message, $site_ids, $type = 'emergency', $incident_id = 0 ) {
 		global $wp_object_cache;
 
 		$site_option = self::getSiteOptionByType( $type );
 
 		$alert = array(
-			'msg'        => $alert_message,
-			'started_on' => time(),
+			'msg'         => $alert_message,
+			'started_on'  => time(),
+			'incident_id' => $incident_id,
 		);
 
 		// Set network level site option for an alert, given the type and message.
