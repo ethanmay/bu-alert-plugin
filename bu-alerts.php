@@ -8,8 +8,8 @@ Author URI: http://www.bu.edu/
 */
 
 require_once 'src/bu-alert-endpoint.php';
-
 require_once 'src/everbridge-api.php';
+require_once 'src/bu-alert-main.php';
 
 class BU_AlertsPlugin {
 
