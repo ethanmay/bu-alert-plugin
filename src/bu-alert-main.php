@@ -47,3 +47,19 @@ function get_all_open_alerts() {
 		$results
 	);
 }
+
+/**
+ * Get the site id for a specific domain
+ *
+ * @param string $domain Domain name of a site on the WP network.
+ * @return int The id for the domain
+ */
+function get_id_for_domain( $domain ) {
+	global $wpdb;
+
+	$site_id = $wpdb->get_var(
+		$wpdb->prepare( "SELECT id FROM {$wpdb->site} WHERE domain = %s", $domain )
+	);
+
+	return $site_id;
+}
