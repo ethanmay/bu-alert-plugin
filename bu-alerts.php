@@ -11,6 +11,10 @@ require_once 'src/bu-alert-endpoint.php';
 require_once 'src/everbridge-api.php';
 require_once 'src/bu-alert-main.php';
 
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	require_once dirname( __FILE__ ) . '/src/alert-wp-cli.php';
+}
+
 class BU_AlertsPlugin {
 
 	/* Site option names used to store alerts/announcements for a site */

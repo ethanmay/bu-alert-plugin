@@ -63,3 +63,15 @@ function get_id_for_domain( $domain ) {
 
 	return $site_id;
 }
+
+/**
+ * Removes the specified alert site option
+ *
+ * @param array $alert_option 
+ * @return void
+ */
+function remove_alert_option( $alert_option ) {
+	switch_to_network( $alert_option['site_id'] );
+	delete_site_option( $alert_option['meta_key'] );
+	restore_current_network();
+}
