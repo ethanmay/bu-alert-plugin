@@ -91,7 +91,7 @@ add_action(
 				'methods'             => 'POST',
 				'callback'            => __NAMESPACE__ . '\start_alert',
 				'permission_callback' => function ( $request ) {
-					return 'dasfglkdjsghasdf' === $request->get_param( 'token' );
+					return \BU_ALERT_API_TOKEN === $request->get_param( 'token' );
 				},
 			)
 		);
@@ -104,7 +104,7 @@ add_action(
 				'methods'             => 'POST,GET',
 				'callback'            => __NAMESPACE__ . '\stop_alert',
 				'permission_callback' => function ( $request ) {
-					return 'dasfglkdjsghasdf' === $request->get_param( 'token' );
+					return \BU_ALERT_API_TOKEN === $request->get_param( 'token' );
 				},
 			)
 		);
