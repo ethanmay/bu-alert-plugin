@@ -61,10 +61,6 @@ class BU_AlertsPlugin {
 		}
 	}
 
-	protected static function getActiveAlert( $alert_type ) {
-		return get_site_option( $alert_type );
-	}
-
 	/**
 	 * Returns the key of the site option to use for storing the alert
 	 *
