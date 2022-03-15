@@ -12,7 +12,7 @@ namespace BU\Plugins\Alert;
 /**
  * Initiates a an alert
  *
- * @param WP_REST_Request $request Parameters from the rest request.
+ * @param \WP_REST_Request $request Parameters from the rest request.
  * @return string Status message.
  */
 function start_alert( $request ) {
