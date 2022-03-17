@@ -16,7 +16,22 @@ namespace BU\Plugins\Alert;
  */
 function list_alerts() {
 	$alert_options = get_all_open_alerts();
-	\WP_CLI::success( var_export( $alert_options ) );
+
+	// Parse alert options for display.
+	$alerts = array_map(
+		function( $alert ) {
+			return array(
+				'site_id'     => $alert['site_id'],
+				'meta_key'    => $alert['meta_key'],
+				'msg'         => $alert['meta_value']['msg'],
+				'started_on'  => $alert['meta_value']['started_on'],
+				'incident_id' => $alert['meta_value']['incident_id'],
+			);
+		},
+		$alert_options
+	);
+
+	\WP_CLI\Utils\format_items( 'table', $alerts, array( 'site_id', 'meta_key', 'msg', 'started_on', 'incident_id' ) );
 }
 
 \WP_CLI::add_command( 'alert list', __NAMESPACE__ . '\list_alerts' );
