@@ -37,6 +37,20 @@ function list_alerts() {
 \WP_CLI::add_command( 'alert list', __NAMESPACE__ . '\list_alerts' );
 
 /**
+ * List all open incidents from the Everbridge API
+ *
+ * @since 3.0.0
+ *
+ * @return void
+ */
+function list_everbridge_incidents() {
+	// Display a table of open incidents.
+	\WP_CLI\Utils\format_items( 'table', get_eb_open_incidents(), array( 'id', 'title', 'body', 'received_url' ) );
+}
+
+\WP_CLI::add_command( 'alert list-everbridge', __NAMESPACE__ . '\list_everbridge_incidents' );
+
+/**
  * Removes alerts that have been closed in Everbridge
  *
  * First gets all of the open alerts in WordPress. If there aren't any, it exits.
