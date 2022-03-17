@@ -1,11 +1,13 @@
 <?php
-/*
-Plugin Name: BU Alert
-Description: Displays & stores BU Alert emergency messages
-Author: Boston University (IS&T)
-Version: 2.4.1
-Author URI: http://www.bu.edu/
-*/
+/**
+ * Plugin Name: BU Alert
+ * Description: Displays & stores BU Alert emergency messages
+ * Author: Boston University (IS&T)
+ * Version: 2.4.1
+ * Author URI: http://www.bu.edu/
+ *
+ * @package BU Alert Plugin
+ */
 
 require_once 'src/bu-alert-endpoint.php';
 require_once 'src/everbridge-api.php';
@@ -15,18 +17,34 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once dirname( __FILE__ ) . '/src/alert-wp-cli.php';
 }
 
+/**
+ * Main plugin class, handles initialzation and starting/stopping alerts
+ */
 class BU_AlertsPlugin {
 
 	/* Site option names used to store alerts/announcements for a site */
 	const SITE_OPT_ALERT        = 'bu-active-alert';
 	const SITE_OPT_ANNOUNCEMENT = 'bu-active-announcement';
 
-	/* Holds the alert text if there is any, otherwise null */
-	static $alert_msg;
+	/**
+	 * Holds the alert text if there is any, otherwise null.
+	 *
+	 * @var string|null
+	 */
+	public static $alert_msg;
 
-	/* State stuff */
-	static $buffering_started;
+	/**
+	 * Used to track the output buffer state (which I'm not sure is really useful or necessary)
+	 *
+	 * @var boolean
+	 */
+	public static $buffering_started;
 
+	/**
+	 * Enqueue alert style, and inject any active alerts to the page body
+	 *
+	 * @return void
+	 */
 	public static function init() {
 
 		// Always enqueue alert css.
@@ -64,8 +82,7 @@ class BU_AlertsPlugin {
 	/**
 	 * Returns the key of the site option to use for storing the alert
 	 *
-	 * @param string $type              The type of alert we are acting on,
-	 *                                  e.g. emergency or announcement
+	 * @param string $type              The type of alert we are acting on, e.g. emergency or announcement.
 	 * @return string The name of the site option to store the alert in
 	 */
 	public static function getSiteOptionByType( $type ) {
