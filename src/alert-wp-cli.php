@@ -8,7 +8,7 @@
 namespace BU\Plugins\Alert;
 
 /**
- * Very simple command that just grabs all the open alerts and exports the array to the console
+ * Very simple command that just grabs all the open alerts and formats them as a table
  *
  * @since 3.0.0
  *
