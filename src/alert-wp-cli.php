@@ -105,23 +105,7 @@ function expire_everbridge_alerts() {
 	$open_incident_ids = get_open_incident_ids();
 
 	// Check for alerts with incident ids that are no longer active in Everbridge.
-	$expired_incidents = array_filter(
-		$open_alert_options,
-		function ( $alert ) use ( $open_incident_ids ) {
-			// Empty incident_ids should be removed, they could be from Everbridge.
-			if ( empty( $alert['meta_value']['incident_id'] ) ) {
-				return true;
-			}
-
-			// Allow for a manual override; these would not be from Everbridge, so don't expire them automatically.
-			if ( 'manual' === $alert['meta_value']['incident_id'] ) {
-				return false;
-			}
-
-			// Otherwise see if it is in the array of open incidents.
-			return ! in_array( $alert['meta_value']['incident_id'], $open_incident_ids, true );
-		}
-	);
+	$expired_incidents = get_expired_incidents( $open_alert_options, $open_incident_ids );
 
 	// Remove the the expired alerts.
 	$removed_alerts = array_map(
@@ -151,3 +135,32 @@ function expire_everbridge_alerts() {
 }
 
 \WP_CLI::add_command( 'alert expire', __NAMESPACE__ . '\expire_everbridge_alerts' );
+
+/**
+ * Gets only the incidents that have expired
+ *
+ * @param array $open_alert_options Array of the current open alert site options.
+ * @param array $open_incident_ids  Array of the incident ids that are open in Everbridge.
+ * @return array Array of the alerts that have expired in Everbridge
+ */
+function get_expired_incidents( $open_alert_options, $open_incident_ids ) {
+	$expired_incidents = array_filter(
+		$open_alert_options,
+		function ( $alert ) use ( $open_incident_ids ) {
+			// Empty incident_ids should be removed, they could be from Everbridge.
+			if ( empty( $alert['meta_value']['incident_id'] ) ) {
+				return true;
+			}
+
+			// Allow for a manual override; these would not be from Everbridge, so don't expire them automatically.
+			if ( 'manual' === $alert['meta_value']['incident_id'] ) {
+				return false;
+			}
+
+			// Otherwise see if it is in the array of open incidents.
+			return ! in_array( $alert['meta_value']['incident_id'], $open_incident_ids, true );
+		}
+	);
+
+	return $expired_incidents;
+}
