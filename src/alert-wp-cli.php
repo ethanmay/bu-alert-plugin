@@ -51,6 +51,33 @@ function list_everbridge_incidents() {
 \WP_CLI::add_command( 'alert list-everbridge', __NAMESPACE__ . '\list_everbridge_incidents' );
 
 /**
+ * Stops all active alerts for the entire network
+ *
+ * @since 3.0.0
+ *
+ * @return void
+ */
+function stop_all() {
+	// Remove the the expired alerts.
+	$removed_alerts = array_map(
+		function ( $alert ) {
+			remove_alert_option( $alert );
+			return "{$alert['site_id']}: {$alert['meta_key']}";
+		},
+		get_all_open_alerts()
+	);
+	// Log results.
+	array_map(
+		function( $removed_alert ) {
+			\WP_CLI::log( "Removed alert {$removed_alert}" );
+		},
+		$removed_alerts
+	);
+}
+
+\WP_CLI::add_command( 'alert stop-all', __NAMESPACE__ . '\stop_all' );
+
+/**
  * Removes alerts that have been closed in Everbridge
  *
  * First gets all of the open alerts in WordPress. If there aren't any, it exits.
