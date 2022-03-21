@@ -86,8 +86,18 @@ function expire_everbridge_alerts() {
 	$expired_incidents = array_filter(
 		$open_alert_options,
 		function ( $alert ) use ( $open_incident_ids ) {
-			// Check for a valid incident id, and see if it is in the array of open incidents.
-			return $alert['meta_value']['incident_id'] && ! in_array( $alert['meta_value']['incident_id'], $open_incident_ids, true );
+			// Empty incident_ids should be removed, they could be from Everbridge.
+			if ( empty( $alert['meta_value']['incident_id'] ) ) {
+				return true;
+			}
+
+			// Allow for a manual override; these would not be from Everbridge, so don't expire them automatically.
+			if ( 'manual' === $alert['meta_value']['incident_id'] ) {
+				return false;
+			}
+
+			// Otherwise see if it is in the array of open incidents.
+			return ! in_array( $alert['meta_value']['incident_id'], $open_incident_ids, true );
 		}
 	);
 
