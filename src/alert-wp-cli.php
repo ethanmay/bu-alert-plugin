@@ -102,12 +102,7 @@ function expire_everbridge_alerts() {
 	}
 
 	// Get the open incident ids from Everbridge.
-	$open_incident_ids = array_map(
-		function ( $incident ) {
-			return $incident['id'];
-		},
-		get_eb_open_incidents()
-	);
+	$open_incident_ids = get_open_incident_ids();
 
 	// Check for alerts with incident ids that are no longer active in Everbridge.
 	$expired_incidents = array_filter(

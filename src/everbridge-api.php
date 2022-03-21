@@ -101,3 +101,19 @@ function get_eb_incident_details( $incident_id ) {
 		'received_url' => $received_url,
 	);
 }
+
+/**
+ * Get just the incident ids for all open incident ids
+ *
+ * @return array Array of incident ids
+ */
+function get_open_incident_ids() {
+	$open_incident_ids = array_map(
+		function ( $incident ) {
+			return $incident['id'];
+		},
+		get_eb_open_incidents()
+	);
+
+	return $open_incident_ids;
+}
