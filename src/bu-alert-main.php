@@ -67,7 +67,7 @@ function get_id_for_domain( $domain ) {
 /**
  * Removes the specified alert site option
  *
- * @param array $alert_option 
+ * @param array $alert_option The loaded site option for the alert to be deleted.
  * @return void
  */
 function remove_alert_option( $alert_option ) {
