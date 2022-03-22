@@ -59,6 +59,11 @@ function start_alert( $request ) {
 		$incident_id
 	);
 
+	// Rebuild the homepage.
+	if ( function_exists( '\BU\Themes\R_Editorial\BU_Homepage\bu_homepage_trigger_action' ) ) {
+		\BU\Themes\R_Editorial\BU_Homepage\bu_homepage_trigger_action();
+	}
+
 	return $result;
 }
 
@@ -73,6 +78,11 @@ function stop_alert( $request ) {
 	$site_ids = array( get_id_for_domain( $current_site->domain ) );
 
 	$result = \BU_AlertsPlugin::stopAlert( $site_ids );
+
+	// Rebuild the homepage.
+	if ( function_exists( '\BU\Themes\R_Editorial\BU_Homepage\bu_homepage_trigger_action' ) ) {
+		\BU\Themes\R_Editorial\BU_Homepage\bu_homepage_trigger_action();
+	}
 
 	return $result;
 }

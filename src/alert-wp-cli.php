@@ -116,9 +116,14 @@ function expire_everbridge_alerts() {
 		$expired_incidents
 	);
 
-	// If the expired incidents array wasn't empty, then flush the cache.
+	// If the expired incidents array wasn't empty, then flush the cache and rebuild the homepage.
 	if ( $expired_incidents ) {
 		$flush_result = $wp_object_cache->flush( 0 );
+
+		// Rebuild the homepage.
+		if ( function_exists( '\BU\Themes\R_Editorial\BU_Homepage\bu_homepage_trigger_action' ) ) {
+			\BU\Themes\R_Editorial\BU_Homepage\bu_homepage_trigger_action();
+		}
 
 		// Log result and exit.
 		\WP_CLI::success( "Expired alerts removed, cache flush result was {$flush_result}" );
