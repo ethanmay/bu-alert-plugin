@@ -78,6 +78,38 @@ function stop_all() {
 \WP_CLI::add_command( 'alert stop-all', __NAMESPACE__ . '\stop_all' );
 
 /**
+ * Manually start an alert on the current domain with a specified message
+ *
+ * <message>
+ * : An alert message to display
+ *
+ * @param array $args Accepts an alert message as a command line argument.
+ * @return void
+ */
+function start_manual( $args ) {
+	global $current_site;
+
+	// Get the site id for the current site.
+	$site_ids[] = get_id_for_domain( $current_site->domain );
+
+	$result = \BU_AlertsPlugin::startAlert(
+		$args[0],
+		$site_ids,
+		'emergency',
+		'manual'
+	);
+
+	// Rebuild the homepage.
+	if ( function_exists( '\BU\Themes\R_Editorial\BU_Homepage\bu_homepage_trigger_action' ) ) {
+		\BU\Themes\R_Editorial\BU_Homepage\bu_homepage_trigger_action();
+	}
+
+	\WP_CLI::success( wp_json_encode( $result ) );
+}
+
+\WP_CLI::add_command( 'alert start-manual', __NAMESPACE__ . '\start_manual' );
+
+/**
  * Removes alerts that have been closed in Everbridge
  *
  * First gets all of the open alerts in WordPress. If there aren't any, it exits.
