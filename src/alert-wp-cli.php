@@ -66,6 +66,12 @@ function stop_all() {
 		},
 		get_all_open_alerts()
 	);
+
+	// Rebuild the homepage.
+	if ( function_exists( '\BU\Themes\R_Editorial\BU_Homepage\bu_homepage_trigger_action' ) ) {
+		\BU\Themes\R_Editorial\BU_Homepage\bu_homepage_trigger_action();
+	}
+
 	// Log results.
 	array_map(
 		function( $removed_alert ) {
