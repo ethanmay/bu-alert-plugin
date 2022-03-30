@@ -95,6 +95,7 @@ class BU_AlertsPlugin {
 	 * @param string $alert_message The text message received from the external API.
 	 * @param array  $site_ids An array of ids for sites that will display the alert.
 	 * @param string $type Optional alert type, either 'emergency' or 'announcement'.
+	 * @param mixed  $incident_id Optional incident id, either a numeric id or the string 'manual'.
 	 * @return bool Returns true on success or false on failure
 	 */
 	public static function startAlert( $alert_message, $site_ids, $type = 'emergency', $incident_id = 0 ) {
@@ -126,6 +127,13 @@ class BU_AlertsPlugin {
 		);
 	}
 
+	/**
+	 * Stops alerts for an array of site ids.
+	 *
+	 * @param array  $site_ids An array of ids for sites that will stop displaying the alert.
+	 * @param string $type Optional alert type, either 'emergency' or 'announcement'.
+	 * @return array Returns a status result, as to whether the cache flush was successful.
+	 */
 	public static function stopAlert( $site_ids, $type = 'emergency' ) {
 		global $wp_object_cache;
 
